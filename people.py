@@ -1,0 +1,67 @@
+import ldap
+
+class Person(object):
+    managerattr = None
+
+    def __init__(self, res, l):
+        # res = ldap search result tuple
+        self.dn = res[0]
+        self.uid = res[1]['uid'][0]
+        self.manager = None
+        # No children by default
+        self.children = []
+        self.l = l
+        self.filterchildren = "(%s=%s)" % (self.managerattr, self.dn)
+        self._print_node()
+
+    def log(self, msg):
+        #print "[%s] %s" % (self.uid, msg)
+        pass
+
+    def _print_node(self):
+        pass
+
+    def find_children(self):
+        pass
+
+    def has_children(self):
+        # Do a search for potential children, return that
+        return self.l.search(filterstr=self.filterchildren)
+
+class Employee(Person):
+    def _print_node(self):
+        shape="ellipse"
+        print "node [shape=%s]; %s;" % (shape, self.uid)
+
+class Manager(Person):
+    def _print_node(self):
+        shape="triangle"
+        print "node [shape=%s]; %s;" % (shape, self.uid)
+
+    def find_children(self):
+        self.log("finding children")
+        children = self.has_children()
+        if children:
+            self.log("I have children")
+            # Any results returned?
+            for child in children:
+                child_name = child[1]['uid'][0]
+                self.log("Inspecting child: %s" % child_name)
+                # Check if they have children themselves
+                c = Person(child, self.l)
+                if c.has_children():
+                    self.log("%s has children" % c.uid)
+                    # OK, they do, so they're a manager
+                    m = Manager(child, self.l)
+                    self.children.append(m)
+                    self.log("Calling %s's find_children() method" % child_name)
+                    m.find_children()
+                else:
+                    # Nope, they're just a leaf-node
+                    self.children.append(Employee(child, self.l))
+
+            self.print_dot()
+
+    def print_dot(self):
+        children_names = [ c.uid for c in self.children]
+        print "%s -> {%s};" % (self.uid, " ".join(children_names))
