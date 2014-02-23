@@ -1,3 +1,4 @@
 *~
 *.py[co]
 org_chart.dot
+*.png
