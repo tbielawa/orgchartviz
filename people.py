@@ -1,4 +1,5 @@
 import ldap
+import orgchartwriter
 
 class Person(object):
     managerattr = None
@@ -15,8 +16,8 @@ class Person(object):
         self._print_node()
 
     def log(self, msg):
-        #print "[%s] %s" % (self.uid, msg)
-        pass
+        o = orgchartwriter.OrgChartWriter()
+        o.dot(msg)
 
     def _print_node(self):
         pass
@@ -31,30 +32,30 @@ class Person(object):
 class Employee(Person):
     def _print_node(self):
         shape="ellipse"
-        print "node [shape=%s]; %s;" % (shape, self.uid)
+        self.log("node [shape=%s]; %s;" % (shape, self.uid))
 
 class Manager(Person):
     def _print_node(self):
         shape="triangle"
-        print "node [shape=%s]; %s;" % (shape, self.uid)
+        self.log("node [shape=%s]; %s;" % (shape, self.uid))
 
     def find_children(self):
-        self.log("finding children")
+        # self.log("finding children")
         children = self.has_children()
         if children:
-            self.log("I have children")
+            # self.log("I have children")
             # Any results returned?
             for child in children:
                 child_name = child[1]['uid'][0]
-                self.log("Inspecting child: %s" % child_name)
+                # self.log("Inspecting child: %s" % child_name)
                 # Check if they have children themselves
                 c = Person(child, self.l)
                 if c.has_children():
-                    self.log("%s has children" % c.uid)
+                    # self.log("%s has children" % c.uid)
                     # OK, they do, so they're a manager
                     m = Manager(child, self.l)
                     self.children.append(m)
-                    self.log("Calling %s's find_children() method" % child_name)
+                    # self.log("Calling %s's find_children() method" % child_name)
                     m.find_children()
                 else:
                     # Nope, they're just a leaf-node
@@ -64,4 +65,4 @@ class Manager(Person):
 
     def print_dot(self):
         children_names = [ c.uid for c in self.children]
-        print "%s -> {%s};" % (self.uid, " ".join(children_names))
+        self.log("%s -> {%s};" % (self.uid, " ".join(children_names)))

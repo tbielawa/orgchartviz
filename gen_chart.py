@@ -3,6 +3,7 @@ import argparse
 from pprint import pprint as p
 import ldap
 import people
+import orgchartwriter
 
 class org_chart_ldap(object):
     def __init__(self, uri=None, search_base=None):
@@ -37,13 +38,16 @@ parser.add_argument("--out", "-o",
 args = parser.parse_args()
 
 people.Person.managerattr = args.manager_attr
+orgchartwriter.OrgChartWriter.OUTPUT = args.out
 
 try:
+    logger = orgchartwriter.OrgChartWriter()
+    logger.begin_output()
     l = org_chart_ldap(uri=args.uri, search_base=args.search_base)
     first_result = l.search(filterstr=args.start_filter)[0]
     first_result_obj = people.Manager(first_result, l)
     first_result_obj.find_children()
 except KeyboardInterrupt:
     pass
-
-print "}"
+else:
+    logger.end_output()
