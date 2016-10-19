@@ -32,12 +32,12 @@ class Person(object):
 class Employee(Person):
     def _print_node(self):
         shape="ellipse"
-        self.log("node [shape=%s]; %s;" % (shape, self.uid))
+        self.log("node [shape=%s]; \"%s\";" % (shape, self.uid))
 
 class Manager(Person):
     def _print_node(self):
         shape="triangle"
-        self.log("node [shape=%s]; %s;" % (shape, self.uid))
+        self.log("node [shape=%s]; \"%s\";" % (shape, self.uid))
 
     def find_children(self):
         # self.log("finding children")
@@ -65,4 +65,4 @@ class Manager(Person):
 
     def print_dot(self):
         children_names = [ c.uid for c in self.children]
-        self.log("%s -> {%s};" % (self.uid, " ".join(children_names)))
+        self.log("\"%s\" -> {%s};" % (self.uid, '"{0}"'.format('" "'.join(children_names))))
