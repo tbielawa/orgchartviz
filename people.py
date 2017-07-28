@@ -9,11 +9,13 @@ class Person(object):
         self.dn = res[0]
         self.uid = res[1]['uid'][0]
         self.manager = None
+        self.res = res
         # No children by default
         self.children = []
         self.l = l
         self.filterchildren = "(%s=%s)" % (self.managerattr, self.dn)
         self._print_node()
+        self.ex_contract = self.res[1]['rhatPersonType'][0] == 'Ex-contingent Worker'
 
     def log(self, msg):
         o = orgchartwriter.OrgChartWriter()
@@ -50,6 +52,11 @@ class Manager(Person):
                 # self.log("Inspecting child: %s" % child_name)
                 # Check if they have children themselves
                 c = Person(child, self.l)
+
+                if c.ex_contract:
+                    # This is an ex-contractor account, don't show it
+                    continue
+
                 if c.has_children():
                     # self.log("%s has children" % c.uid)
                     # OK, they do, so they're a manager

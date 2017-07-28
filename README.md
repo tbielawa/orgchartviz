@@ -20,7 +20,13 @@ Generate a dot file called `my_org_chart.dot`:
     $ ./gen_chart.py --uri=ldap://ldap.company.com --search-base=dc=company,dc=com --start-filter=uid=somebossid --manager-attr=manager --out my_org_chart.dot
 
 You could instead print the dot file to your console directly by
-setting `--out` to `-` (a single hyphen character)
+setting `--out` to `-` (a single hyphen character).
+
+## Secure Connections
+
+Supply the path to the CA cert for secure connection using the `--cacert` option flag:
+
+    $ ./gen_chart.py --cacert /etc/pki/tls/certs/mycompany.crt --uri=ldaps://ldap.company.com --search-base=dc=company,dc=com --start-filter=uid=somebossid --manager-attr=manager --out my_org_chart.dot
 
 ## Generate an Image
 

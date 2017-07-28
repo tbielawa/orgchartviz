@@ -6,9 +6,11 @@ import people
 import orgchartwriter
 
 class org_chart_ldap(object):
-    def __init__(self, uri=None, search_base=None):
+    def __init__(self, uri=None, search_base=None, cacert_file=None):
         self.search_base = search_base
         self.uri = uri
+        if cacert_file:
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, cacert_file)
         self._initialize()
 
     def _initialize(self):
@@ -35,6 +37,8 @@ parser.add_argument("--manager-attr", "-m",
 parser.add_argument("--out", "-o",
                     default="org_chart.dot",
                     help="File name for dot output file. Use '-' for stdout. Default org_chart.dot")
+parser.add_argument("--cacert", "-c",
+                    help="Path to the CA file for secure connections")
 args = parser.parse_args()
 
 people.Person.managerattr = args.manager_attr
@@ -43,7 +47,7 @@ orgchartwriter.OrgChartWriter.OUTPUT = args.out
 try:
     logger = orgchartwriter.OrgChartWriter()
     logger.begin_output()
-    l = org_chart_ldap(uri=args.uri, search_base=args.search_base)
+    l = org_chart_ldap(uri=args.uri, search_base=args.search_base, cacert_file=args.cacert)
     first_result = l.search(filterstr=args.start_filter)[0]
     first_result_obj = people.Manager(first_result, l)
     first_result_obj.find_children()
